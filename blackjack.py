@@ -2,27 +2,73 @@
 
 import random
 import os
+import time
 
 class Card:
-    def __init__(self, suit, suitvalue, value, cardValue):
-        self.suits = suit
+    def __init__(self, suitValue, value, cardValue):
         self.suitValue = suitValue
         self.value = value
         self.cardValue = cardValue
 
 def clearScreen():
-    system('clear')
+    os.system('clear')
 
-def printCards(hand):
+def printCards(hand): 
+    cardCount = 1
+    count = 0
+    length = 3
+    top = ''
+    middle = [''] * length
+    suitMiddle = ''
+    emptyMiddle = ''
+    bottom = ''
+    
     for card in hand:
-        top += '---------------   ' 
+        cards = range(1, length)
+        #cards = 0
+        index = 0
+        
+        #print top section
+        while len(top) < (10 * cardCount):
+            if len(top) == (10 * cardCount - 1):
+                top += '\t'
+            else:
+                top += '-'
+
+        #print middle section
+        suitMiddle += '|' + card.suitValue + card.value + '\t|\t'
+        middle[0] = suitMiddle
+        middle[0] += '\n'
+        index += 1
+        
+        emptyMiddle += '|' + '  ' + '\t|\t'
+        
+        for n in cards:
+            if n == 1:
+                middle[n] = emptyMiddle
+                middle[n] += '\n'
+            elif n == (length - 1):
+                middle[n] += emptyMiddle
+            elif n == length:
+                break
+            else:
+                middle[n] += emptyMiddle
+                middle[n] += '\n'
+              
+        # #print bottom section
+        while len(bottom) < (10 * cardCount):
+            if len(bottom) == (10 * cardCount - 1):
+                bottom += '\t'
+            else:
+                bottom += '-'    
+
+        
         print(top)
-
-        middle += '|' +  hand.value + hand.suiteValue + '\n|\n|\n|\n'             '|\n|\n|\n|\n   '
-        print(middle)
-
-        bottom += '---------------   '
+        print(''.join(middle))
         print(bottom)
+        cardCount += 1
+        time.sleep(1)
+
 
 def Game(cardDeck):
     playerHand = []
@@ -37,12 +83,12 @@ def Game(cardDeck):
         while len(playerHand) < 2 and len(dealerHand) < 2:
             card = random.choice(cardDeck)
             playerHand.append(card)
-            playerHandValue += card.cardValues[values]
+            playerHandValue += card.cardValue
             cardDeck.remove(card)
             
             card = random.choice(cardDeck)
             dealerHand.append(card)
-            dealerHandValue += card.cardValues[values]
+            dealerHandValue += card.cardValue
             cardDeck.remove(card)
 
         while True:
@@ -77,14 +123,14 @@ def Game(cardDeck):
                 playerHandValue += card.cardValues[values]
                 cardDeck.remove(card)
                 continue
-            elif action = 'S':
+            elif action == 'S':
                 if dealerHandValue < 17:
                     card = random.choice(cardDeck)
                     dealerHand.append(card)
                     dealerHandValue += card.cardValues[values]
                     cardDeck.remove(card)
                     continue
-                else:
+#                else:
 
             else:
                 print("Not a valid selection!")
@@ -96,7 +142,7 @@ def Game(cardDeck):
 
 
 suits = ["Diamonds", "Hearts", "Clubs", "Spades"]
-suitValues = ["Diamonds":"\u2666", "Hearts":"\u2665", "Clubs":"\u2663", "Spades":"\u2660"]
+suitValues = {"Diamonds":"\u2666", "Hearts":"\u2665", "Clubs":"\u2663", "Spades":"\u2660"}
 values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
 cardValues = {"2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8, "9":9, "10":10, "J":10, "Q":10, "K":10, "A":11}
 cardDeck = []
@@ -105,6 +151,6 @@ cardDeck = []
 if __name__ == "__main__":
     for suit in suits:
         for card in values:
-            deck.append(Card(suit, suitValues[suit], card, cardValues[values]))
-    
+            cardDeck.append(Card(suitValues[suit], card, cardValues[card]))
+
     Game(cardDeck)
