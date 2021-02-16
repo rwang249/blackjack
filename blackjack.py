@@ -13,61 +13,16 @@ class Card:
 def clearScreen():
     os.system('clear')
 
-def printCards(hand): 
-    cardCount = 1
-    count = 0
-    length = 3
-    top = ''
-    middle = [''] * length
-    suitMiddle = ''
-    emptyMiddle = ''
-    bottom = ''
+def printCards(hand, hidden):
+    printHand = ''
+    
+    if hidden == True:
+        printHand = '?\t'
+        print(printHand)
     
     for card in hand:
-        cards = range(1, length)
-        #cards = 0
-        index = 0
-        
-        #print top section
-        while len(top) < (10 * cardCount):
-            if len(top) == (10 * cardCount - 1):
-                top += '\t'
-            else:
-                top += '-'
-
-        #print middle section
-        suitMiddle += '|' + card.suitValue + card.value + '\t|\t'
-        middle[0] = suitMiddle
-        middle[0] += '\n'
-        index += 1
-        
-        emptyMiddle += '|' + '  ' + '\t|\t'
-        
-        for n in cards:
-            if n == 1:
-                middle[n] = emptyMiddle
-                middle[n] += '\n'
-            elif n == (length - 1):
-                middle[n] += emptyMiddle
-            elif n == length:
-                break
-            else:
-                middle[n] += emptyMiddle
-                middle[n] += '\n'
-              
-        # #print bottom section
-        while len(bottom) < (10 * cardCount):
-            if len(bottom) == (10 * cardCount - 1):
-                bottom += '\t'
-            else:
-                bottom += '-'    
-
-        
-        print(top)
-        print(''.join(middle))
-        print(bottom)
-        cardCount += 1
-        time.sleep(1)
+        printHand = card.suitValue + card.value + '\t'
+        print(printHand)
 
 
 def Game(cardDeck):
@@ -78,25 +33,36 @@ def Game(cardDeck):
     winner = False
 
     while winner != True:
+        handIteration = 0
         clearScreen()
-
-        while len(playerHand) < 2 and len(dealerHand) < 2:
-            card = random.choice(cardDeck)
-            playerHand.append(card)
-            playerHandValue += card.cardValue
-            cardDeck.remove(card)
-            
-            card = random.choice(cardDeck)
-            dealerHand.append(card)
-            dealerHandValue += card.cardValue
-            cardDeck.remove(card)
-
         while True:
-            print('PLAYER HAND')
-            printCards(playerHand)
-            print('#################################################')
-            print('DEALER HAND')
-            printCards(dealerHand)
+            while len(playerHand) < 2 and len(dealerHand) < 2:
+                
+                card = random.choice(cardDeck)
+                playerHand.append(card)
+                playerHandValue += card.cardValue
+                cardDeck.remove(card)
+                print('PLAYER HAND: ' + str(playerHandValue))
+                printCards(playerHand, False)
+                time.sleep(1)
+                
+                card = random.choice(cardDeck)
+                dealerHand.append(card)
+                dealerHandValue += card.cardValue
+                cardDeck.remove(card)
+                print('DEALER HAND: ?')
+                time.sleep(1)
+                
+                if len(dealerHand) == 1:
+                    printCards(dealerHand[:-1], True)
+                elif len(playerHand) == 2 and len(dealerHand) == 2:
+                    printCards(dealerHand[:-1], True)
+                    break
+                else:
+                    printCards(dealerHand, False)
+                    
+                time.sleep(1)
+                clearScreen()
 
             if playerHandValue == 21:
                 print("Player Wins!")
@@ -104,41 +70,69 @@ def Game(cardDeck):
                 break
             elif dealerHandValue == 21:
                 print("Dealer Wins!")
+                print('DEALER HAND: ' + str(dealerHandValue))
+                printCards(dealerHand, False)
                 winner = True
                 break
-
-            if playerHandValue > 21:
-                print("Player Loses!")
-                winner = True
-                break
+            elif playerHandValue > 21:
+                while handIteration != len(playerHand):
+                    if playerHand[handIteration].value == 11:
+                        playerHand[handIteration].value = 1
+                        playerHandValue - 11
+                        playerHandValue += playerHand[handIteration].value
+                    handIteration += 1
+                if playerHandValue > 21:
+                    print("Dealer Wins!")
+                    winner = True
+                    break                                   
             elif dealerHandValue > 21:
-                print("Player Wins!")
-                winner = True
-                break
-
+                while handIteration != len(dealerHand):
+                    if dealerHand[handIteration].value == 11:
+                        dealerHand[handIteration].value = 1
+                        dealerHandValue - 11
+                        dealerHandValue += dealerHand[handIteration].value
+                    handIteration += 1
+                if dealerHandValue > 21:
+                    print("Player Wins!")
+                    winner = True
+                    break       
+        
             action = input("Hit(H) or Stay(S): ")
             if action == 'H':
                 card = random.choice(cardDeck)
                 playerHand.append(card)
-                playerHandValue += card.cardValues[values]
+                playerHandValue += card.cardValue
                 cardDeck.remove(card)
+                print('PLAYER HAND: ' + str(playerHandValue))
+                printCards(playerHand, False)
+                time.sleep(1)
                 continue
             elif action == 'S':
-                if dealerHandValue < 17:
+                print('DEALER HAND: ' + str(dealerHandValue))
+                printCards(dealerHand, False)
+                while dealerHandValue < 17:
                     card = random.choice(cardDeck)
                     dealerHand.append(card)
-                    dealerHandValue += card.cardValues[values]
+                    dealerHandValue += card.cardValue
                     cardDeck.remove(card)
-                    continue
-#                else:
-
+                    print('DEALER HAND: ' + str(dealerHandValue))
+                    printCards(dealerHand, False)
+                    time.sleep(1)
+                    if dealerHandValue < 21:
+                        continue
+                    elif dealerHandValue > 21:
+                        break  
+                if dealerHandValue > playerHandValue and dealerHandValue <= 21:
+                        print("Dealer Wins!")
+                        winner = True
+                        break         
+                elif playerHandValue > dealerHandValue and playerHandValue <= 21:
+                        print("Player Wins!")
+                        winner = True
+                        break       
             else:
                 print("Not a valid selection!")
                 continue
-            
-
-
-
 
 
 suits = ["Diamonds", "Hearts", "Clubs", "Spades"]
